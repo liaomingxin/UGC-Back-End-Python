@@ -251,13 +251,12 @@ class ProductCrawler:
         """
         try:
             if "amazon.com" in driver.current_url:
-                # 亚马逊特殊处理
                 price_selectors = [
-                    ".a-offscreen",  # 主要价格选择器
-                    ".a-price .a-offscreen",  # 备用选择器1
-                    "#priceblock_ourprice",  # 备用选择器2
-                    "#price_inside_buybox",  # 备用选择器3
-                    ".a-price-whole"  # 备用选择器4
+                    ".a-offscreen",
+                    ".a-price .a-offscreen",
+                    "#priceblock_ourprice",
+                    "#price_inside_buybox",
+                    ".a-price-whole"
                 ]
                 
                 for selector in price_selectors:
@@ -266,20 +265,19 @@ class ProductCrawler:
                         price_text = element.text.strip()
                         if price_text:
                             logger.info(f"Found price with selector {selector}: {price_text}")
-                            # 提取数字
                             price_match = re.search(r'[\d,.]+', price_text)
                             if price_match:
                                 price = price_match.group(0).replace(',', '')
-                                # 验证提取的价格
                                 try:
                                     decimal_price = Decimal(price)
                                     if decimal_price > 0:
                                         logger.info(f"Successfully extracted price: {decimal_price}")
                                         return str(decimal_price)
-                                except (InvalidOperation, ValueError):
+                                except (InvalidOperation, ValueError) as e:
+                                    logger.warning(f"Invalid price format: {price_text} - {str(e)}")
                                     continue
                     except Exception as e:
-                        logger.debug(f"Failed to get price with selector {selector}: {str(e)}")
+                        logger.debug(f"Failed with selector {selector}: {str(e)}")
                         continue
                     
                 raise ValueError("Could not find valid price element")
