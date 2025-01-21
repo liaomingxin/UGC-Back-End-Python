@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from app.utils.logger import setup_logger
 from app.config.settings import settings
 from app.api import content  # 导入路由模块
+import os
 
 # 设置日志记录器
 logger = setup_logger()
@@ -27,9 +28,13 @@ app.add_middleware(
 # 注册 API 路由
 app.include_router(
     content.router, 
-    prefix=settings.API_PREFIX,
+    prefix="/api",  # 直接硬编码
     tags=["content"]
 )
+
+# 添加调试信息
+for route in app.routes:
+    logger.info(f"Registered route: {route.path}")
 
 @app.on_event("startup")
 async def startup_event():
@@ -38,6 +43,9 @@ async def startup_event():
     记录启动日志并执行启动时的初始化任务。
     """
     logger.info("Starting up UGC Content Generator...")
+    logger.info(f"API PREFIX from settings: {settings.API_PREFIX}")
+    logger.info(f"API PREFIX from env: {os.getenv('API_PREFIX')}")
+    logger.info(f"OPENAI_BASE_URL from settings: {settings.OPENAI_BASE_URL}")
 
 @app.on_event("shutdown")
 async def shutdown_event():

@@ -1,0 +1,6 @@
+.history/*
+logs/*
+app/core/__pycache__/*
+
+app/__pycache__/main.cpython-312.pyc
+app/api/__pycache__/content.cpython-312.pyc

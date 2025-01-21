@@ -28,7 +28,7 @@ def setup_logger():
     # 添加文件处理器
     logger.add(
         log_dir / "app.log",
-        rotation="500 MB",  # 文件大小超过 500 MB 时轮换
+        rotation="1024 MB",  # 文件大小超过 500 MB 时轮换
         retention="10 days",  # 保留 10 天内的日志文件
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
         level="INFO",
