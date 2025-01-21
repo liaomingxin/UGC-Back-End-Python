@@ -5,6 +5,7 @@ from app.utils.logger import setup_logger
 from app.config.settings import settings
 from app.api import content  # 导入路由模块
 import os
+from pathlib import Path
 
 # 设置日志记录器
 logger = setup_logger()
@@ -40,12 +41,30 @@ for route in app.routes:
 async def startup_event():
     """
     应用启动事件。
-    记录启动日志并执行启动时的初始化任务。
     """
     logger.info("Starting up UGC Content Generator...")
-    logger.info(f"API PREFIX from settings: {settings.API_PREFIX}")
-    logger.info(f"API PREFIX from env: {os.getenv('API_PREFIX')}")
-    logger.info(f"OPENAI_BASE_URL from settings: {settings.OPENAI_BASE_URL}")
+    
+    # 检查 ChromeDriver 环境
+    chrome_driver_path = settings.CHROME_DRIVER_PATH
+    if chrome_driver_path:
+        driver_path = Path(chrome_driver_path)
+        if driver_path.exists():
+            import os, stat
+            st = os.stat(driver_path)
+            is_executable = bool(st.st_mode & stat.S_IXUSR)
+            logger.info(f"ChromeDriver found at: {chrome_driver_path}")
+            logger.info(f"ChromeDriver is executable: {is_executable}")
+            
+            # 检查版本
+            import subprocess
+            try:
+                result = subprocess.run([chrome_driver_path, '--version'], 
+                                     capture_output=True, text=True)
+                logger.info(f"ChromeDriver version: {result.stdout.strip()}")
+            except Exception as e:
+                logger.error(f"Error checking ChromeDriver version: {str(e)}")
+        else:
+            logger.warning(f"ChromeDriver not found at: {chrome_driver_path}")
 
 @app.on_event("shutdown")
 async def shutdown_event():

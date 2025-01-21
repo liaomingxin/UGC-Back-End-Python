@@ -5,10 +5,10 @@ class PriceSelector(BaseModel):
     """
     商品价格选择器配置。
     属性：
-        class_name (str): 价格元素的类名。
+        className (str): 价格元素的类名。
         pattern (Optional[str]): 提取价格的正则表达式模式，可选。
     """
-    class_name: str
+    className: str
     pattern: Optional[str] = None
 
 class SiteConfig(BaseModel):

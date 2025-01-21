@@ -1,16 +1,40 @@
 selectors:
   taobao:
-    domain: ["item.taobao.com", "detail.tmall.com"]
-    title: "h1.tb-main-title"
+    domain: ["taobao.com", "tmall.com"]
+    title: "#tbpc-detail-item-title > h1"
     price:
-      class_name: "tb-rmb-num"
-      pattern: "\\d+\\.?\\d*"
-    image: "img#J_ImgBooth"
-    
+      className: ".text--Mdqy24Ex"
+      pattern: "^[¥$€£]?\\s*\\d+\\.?\\d*.*"
+    image: "div.innerWrap--tD6LdQYX > div > img"
+
   jd:
-    domain: ["item.jd.com"]
-    title: "div.sku-name"
+    domain: ["jd.com"]
+    title: ".sku-name"
     price:
-      class_name: "price J-p-\\d+"
-      pattern: "\\d+\\.?\\d*"
-    image: "img#spec-img" 
+      className: ".p-price .price"
+      pattern: "^[¥$€£]?\\s*\\d+\\.?\\d*.*"
+    image: "#spec-img"
+
+  amazon:
+    domain: ["amazon.com"]
+    title: "#productTitle"
+    price:
+      className: ".a-offscreen"
+      pattern: "\\d+([,.]\\d{1,2})?"
+    image: "#landingImage"
+
+  ebay:
+    domain: ["ebay.com"]
+    title: ".x-item-title h1"
+    price:
+      className: ".x-price-primary"
+      pattern: "^[¥$€£]?\\s*\\d+\\.?\\d*.*"
+    image: ".ux-image-carousel-item.active img"
+
+  temu:
+    domain: ["temu.com"]
+    title: ".goods-title"
+    price:
+      className: ".cur-price"
+      pattern: "^[¥$€£]?\\s*\\d+\\.?\\d*.*"
+    image: ".goods-image img"
