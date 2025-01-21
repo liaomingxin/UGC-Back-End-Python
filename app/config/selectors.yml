@@ -1,0 +1,16 @@
+selectors:
+  taobao:
+    domain: ["item.taobao.com", "detail.tmall.com"]
+    title: "h1.tb-main-title"
+    price:
+      class_name: "tb-rmb-num"
+      pattern: "\\d+\\.?\\d*"
+    image: "img#J_ImgBooth"
+    
+  jd:
+    domain: ["item.jd.com"]
+    title: "div.sku-name"
+    price:
+      class_name: "price J-p-\\d+"
+      pattern: "\\d+\\.?\\d*"
+    image: "img#spec-img" 

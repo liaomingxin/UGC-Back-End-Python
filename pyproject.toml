@@ -1,0 +1,54 @@
+[project]
+name = "ugc-content-generator"
+version = "0.1.0"
+description = "UGC Content Generator Backend Service"
+requires-python = ">=3.9"
+
+# 添加包信息
+packages = [
+    { include = "app" }
+]
+
+dependencies = [
+    "fastapi>=0.68.0",
+    "uvicorn>=0.15.0",
+    "pydantic>=1.8.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=0.19.0",
+    "httpx>=0.23.0",
+    "selenium>=4.16.1",
+    "loguru>=0.7.0",
+    "tenacity>=8.0.1",
+    "openai>=1.0.0",
+    "python-multipart>=0.0.5",
+    "pyyaml>=6.0.1",
+    "sqlalchemy>=2.0.0",
+    "aiomysql>=0.2.0",
+    "pymysql>=1.1.0",
+    "greenlet>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.18.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "mypy>=0.950"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# 添加构建配置
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3 
