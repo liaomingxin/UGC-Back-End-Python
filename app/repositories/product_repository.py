@@ -11,7 +11,7 @@ class ProductRepository:
     async def create_product(self, product: ProductDTO) -> Product:
         db_product = Product(
             title=product.title,
-            price=Decimal(product.price),
+            price=Decimal(product.price) if product.price else Decimal('0.00'),
             image_url=product.image_url,
             product_url=product.product_url
         )
