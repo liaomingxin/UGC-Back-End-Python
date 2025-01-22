@@ -7,6 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from app.models.schemas import ProductDTO
 from app.utils.logger import setup_logger
 from abc import ABC, abstractmethod
+from urllib.parse import urlparse
+import decimal
 
 logger = setup_logger()
 
@@ -55,9 +57,16 @@ class BaseCrawler(ABC):
             driver.get(url)
             
             # 等待页面加载
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "h1"))
-            )
+            domain = urlparse(url).netloc.lower()
+            if any(site in domain for site in ['taobao.com', 'tmall.com']):
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.TAG_NAME, "h1"))
+                )
+            else:
+                WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.TAG_NAME, "body"))
+                )
+            
             if driver.page_source:
                 logger.info(f"page loaded")
             else:
@@ -77,4 +86,4 @@ class BaseCrawler(ABC):
             
         finally:
             if driver:
-                driver.quit() 
+                driver.quit()
