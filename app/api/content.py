@@ -4,6 +4,7 @@ sys.path.append("..")  # 将上层目录添加到sys.path
 from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 from app.models.schemas import (
     ProductDTO,
     ContentGenerationRequest,
@@ -19,6 +20,7 @@ from app.utils.logger import setup_logger
 from app.core.database import get_db
 from app.repositories.product_repository import ProductRepository
 from app.core.crawler_factory import CrawlerFactory
+import time
 
 # 初始化日志记录器
 logger = setup_logger()
@@ -45,19 +47,28 @@ async def crawl_product(
     """
     try:
         logger.info(f"Crawling product data from URL: {request.productUrl}")
+        start_time = time.time()
         
         # 使用工厂获取对应的爬虫
         crawler = CrawlerFactory.get_crawler(request.productUrl)
         product_dto = crawler.crawl(request.productUrl)
         logger.info(f"Crawled product data: {product_dto}")
         
-        # 保存到数据库
-        repo = ProductRepository(db)
-        await repo.create_product(product_dto)
-        
+        # 创建响应
         response = ProductResponse.from_dto(product_dto, request.productUrl)
-        return response
+        end_time = time.time()
+        logger.info(f"------------Crawled product in {end_time - start_time} seconds------------ \n")
         
+        # 在当前数据库会话中保存
+        repo = ProductRepository(db)
+        try:
+            await repo.create_product(product_dto)
+        except Exception as e:
+            logger.error(f"Error saving to database: {str(e)}")
+            # 继续返回响应，即使保存失败
+        
+        return response
+
     except Exception as e:
         logger.error(f"Error crawling product: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -79,12 +90,15 @@ async def generate_content(
     """
     try:
         logger.info(f"Generating content for product: {request.product.title}")
+        start_time = time.time()
         content = await ai_service.generate_content(
             request.product,
             request.style,
             request.length,
             request.language
         )
+        end_time = time.time()
+        logger.info(f"Generated content in {end_time - start_time} seconds")
 
         # 保存商品和生成请求到数据库
         repo = ProductRepository(db)
