@@ -3,6 +3,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from .base_crawler import BaseCrawler
+import requests
+from bs4 import BeautifulSoup
+from app.utils.logger import setup_logger
+from app.models.schemas import ProductDTO
+import re
+
+# 初始化日志记录器
+logger = setup_logger()
 
 class TaobaoTmallCrawler(BaseCrawler):
     """淘宝/天猫爬虫"""
@@ -78,3 +86,61 @@ class LazadaCrawler(BaseCrawler):
         if elements:
             return elements[0].get_attribute('src')
         return "" 
+
+class EbayCrawler(BaseCrawler):
+    """eBay爬虫实现"""
+    
+    def crawl(self, url: str):
+        """重写基类的爬取方法，使用 requests + BeautifulSoup"""
+        try:
+            res = requests.get(url)
+            res.encoding = 'utf-8'
+            soup = BeautifulSoup(res.text, 'lxml')
+            
+            # 提取标题
+            title = ""
+            title_h1 = soup.select('.x-item-title__mainTitle')
+            if title_h1 and len(title_h1) > 0:
+                title_span = title_h1[0].select('.ux-textspans')
+                if title_span and len(title_span) > 0:
+                    title = title_span[0].text.strip()
+            
+            # 提取价格
+            price = ""
+            price_span = soup.select('.ux-labels-values__values-content')
+            if price_span and len(price_span) > 0:
+                price_text = price_span[0].select('.ux-textspans')
+                if price_text and len(price_text) > 0:
+                    raw_price = price_text[0].text.strip()
+                    price_match = re.search(r'\d+(\.\d+)?', raw_price)
+                    if price_match:
+                        price = price_match.group()
+            
+            # 提取图片
+            image_url = ""
+            img_div = soup.select('.ux-image-carousel-item')
+            if img_div and len(img_div) > 0:
+                img = img_div[0].find('img')
+                if img and 'src' in img.attrs:
+                    image_url = img['src']
+            
+            return ProductDTO(
+                title=title,
+                price=price,
+                image_url=image_url,
+                product_url=url
+            )
+            
+        except Exception as e:
+            logger.error(f"Error crawling eBay product: {str(e)}")
+            raise
+    
+    # 以下方法是为了满足基类接口，但实际不会被调用
+    def extract_title(self, driver):
+        return ""
+        
+    def extract_price(self, driver):
+        return ""
+        
+    def extract_image(self, driver):
+        return ""
