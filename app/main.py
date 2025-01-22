@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.utils.logger import setup_logger
 from app.config.settings import settings
-from app.api import content  # 导入路由模块
+from app.api.content import router as content_router
 import os
 from pathlib import Path
 
@@ -28,7 +28,7 @@ app.add_middleware(
 
 # 注册 API 路由
 app.include_router(
-    content.router, 
+    content_router, 
     prefix="/api",  # 直接硬编码
     tags=["content"]
 )

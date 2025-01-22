@@ -3,8 +3,8 @@ from typing import List, Optional
 
 class ProductDTO(BaseModel):
     """商品数据传输对象"""
-    title: str
-    price: str
+    title: Optional[str] = None
+    price: Optional[str] = None
     image_url: Optional[str] = None
     product_url: str
 
