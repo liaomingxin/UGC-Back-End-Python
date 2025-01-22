@@ -3,7 +3,8 @@ from .site_crawlers import (
     TaobaoTmallCrawler,
     AmazonCrawler,
     TemuCrawler,
-    LazadaCrawler
+    LazadaCrawler,
+    EbayCrawler
 )
 from app.config.settings import settings
 
@@ -23,5 +24,7 @@ class CrawlerFactory:
             return TemuCrawler(settings.CHROME_DRIVER_PATH)
         elif 'lazada' in domain:
             return LazadaCrawler(settings.CHROME_DRIVER_PATH)
+        elif 'ebay.com' in domain:
+            return EbayCrawler(settings.CHROME_DRIVER_PATH)
         else:
-            raise ValueError(f"Unsupported domain: {domain}") 
+            raise ValueError(f"Unsupported domain: {domain}")
