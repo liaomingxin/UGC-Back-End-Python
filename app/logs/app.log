@@ -1,0 +1,8 @@
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /openapi.json
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /docs
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /docs/oauth2-redirect
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /redoc
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /api/content/crawl
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /api/content/generate
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /api/content/generate-mimic
+2025-01-22 16:03:03 | INFO     | __main__:<module>:38 - Registered route: /api/content/health
