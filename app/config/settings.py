@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api"  # API 路由前缀
 
     # OpenAI Configuration
-    OPENAI_API_KEY: str  # OpenAI API 密钥
-    OPENAI_BASE_URL: str = "https://api.openai.com/v1"  # OpenAI API 基础 URL
+    OPENAI_API_KEY: str = "sk-kh5dDiP76fy07AOKAfF9KSjR0Lpb5OdThhs29PWpOxLb2rIq"  # OpenAI API 密钥
+    OPENAI_BASE_URL: str = "https://api.gpts.vin"  # OpenAI API 基础 URL
 
     # Selenium Configuration 这里使用绝对路径了，最好改成相对路径
     # CHROME_DRIVER_PATH: str = 'D:/devolopment_tools/Cursor/workspace/UGC-Back-End-Python/app/resources/chromedriver.exe' # ChromeDriver 路径，可选

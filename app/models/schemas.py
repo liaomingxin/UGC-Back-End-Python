@@ -10,14 +10,14 @@ class ProductDTO(BaseModel):
 
 class ProductRequest(BaseModel):
     """商品请求模型"""
-    productUrl: str
+    product_url: str
 
 class ProductResponse(BaseModel):
     """商品响应模型"""
     title: str
     price: str
-    imageUrl: Optional[str] = None
-    productUrl: str
+    image_url: Optional[str] = None
+    product_url: str
 
     @classmethod
     def from_dto(cls, dto: ProductDTO, product_url: str):
@@ -25,8 +25,8 @@ class ProductResponse(BaseModel):
         return cls(
             title=dto.title,
             price=dto.price,
-            imageUrl=dto.image_url,
-            productUrl=product_url
+            image_url=dto.image_url,
+            product_url=product_url
         )
 
 class ContentGenerationRequest(BaseModel):
