@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"  # OpenAI API 基础 URL
 
     # Selenium Configuration 这里使用绝对路径了，最好改成相对路径
-    CHROME_DRIVER_PATH: str = 'D:/devolopment_tools/Cursor/workspace/UGC-Back-End-Python/app/resources/chromedriver.exe' # ChromeDriver 路径，可选
-
+    # CHROME_DRIVER_PATH: str = 'D:/devolopment_tools/Cursor/workspace/UGC-Back-End-Python/app/resources/chromedriver.exe' # ChromeDriver 路径，可选
+    CHROME_DRIVER_PATH: str = '/opt/homebrew/bin/chromedriver' # ChromeDriver 路径，可选
     # Database Configuration
     DATABASE_URL: str  # 数据库连接 URL
 
