@@ -111,7 +111,7 @@ class AIService:
                     json=request_body,
                     timeout=30.0
                 )
-
+                print(response.json())
                 response.raise_for_status()
                 result = response.json()
                 generated_content = result["choices"][0]["message"]["content"]
@@ -119,14 +119,15 @@ class AIService:
                 word_count = len(generated_content)
                 sentiment = self._analyze_sentiment(generated_content)
                 keywords = self._extract_keywords(generated_content)
-
-                return GenerateMimicResponse(
+                response = GenerateMimicResponse(
                     content=generated_content,
                     word_count=word_count,
                     sentiment=sentiment,
                     keywords=keywords
                 )
+                print(response)
 
+                return response
         except Exception as e:
             logger.error(f"Error generating mimic content: {str(e)}")
             raise
