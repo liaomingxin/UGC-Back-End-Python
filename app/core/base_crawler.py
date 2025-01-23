@@ -9,6 +9,7 @@ from app.utils.logger import setup_logger
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 import decimal
+import time
 
 logger = setup_logger()
 
@@ -53,37 +54,54 @@ class BaseCrawler(ABC):
         """执行爬取操作"""
         driver = None
         try:
+            logger.info(f"Starting crawl for URL: {url}")
+            start_time = time.time()
+            
             driver = self._create_driver()
             driver.get(url)
+            logger.info("Browser initialized and navigating to URL")
             
             # 等待页面加载
             domain = urlparse(url).netloc.lower()
+            logger.info(f"Detected domain: {domain}")
+            
             if any(site in domain for site in ['taobao.com', 'tmall.com']):
+                logger.info("Waiting for Taobao/Tmall page to load...")
                 WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.TAG_NAME, "h1"))
                 )
             else:
+                logger.info("Waiting for page to load...")
                 WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.TAG_NAME, "body"))
                 )
             
-            if driver.page_source:
-                logger.info(f"page loaded")
-            else:
-                logger.info(f"page not loaded")
-            
             # 提取数据
             title = self.extract_title(driver)
-            price = self.extract_price(driver)
-            image_url = self.extract_image(driver)
+            logger.info(f"Extracted title: {title}")
             
-            return ProductDTO(
+            price = self.extract_price(driver)
+            logger.info(f"Extracted price: {price}")
+            
+            image_url = self.extract_image(driver)
+            logger.info(f"Extracted image URL: {image_url}")
+            
+            product_dto = ProductDTO(
                 title=title,
                 price=price,
                 image_url=image_url,
                 product_url=url
             )
             
+            end_time = time.time()
+            logger.info(f"Crawl completed in {end_time - start_time:.2f}s")
+            logger.info(f"Crawled data: {product_dto.dict()}")
+            
+            return product_dto
+        except Exception as e:
+            logger.error(f"Error during crawl: {str(e)}", exc_info=True)
+            raise
         finally:
             if driver:
                 driver.quit()
+                logger.info("Browser closed")

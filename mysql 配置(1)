@@ -1,0 +1,75 @@
+
+
+### 1. 拉取 MySQL 镜像
+
+拉取 MySQL 8.0 的镜像，
+
+### 2. 启动 MySQL 容器
+
+如果希望将数据保存在主机上以防容器删除后丢失，可以在运行容器时挂载数据卷：
+
+改密码！
+
+改数据存储路径！
+
+```bash
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=your_password -d -p 3306:3306 \
+-v /path/to/your/data:/var/lib/mysql mysql:8.0
+```
+
+### 4. 进入 MySQL 容器
+
+你可以通过以下命令进入容器：
+
+```bash
+docker exec -it mysql-container mysql -uroot -p
+```
+
+输入你设置的 `your_password` 后，即可进入 MySQL 控制台。
+
+
+
+创建一个名为 `ugcData` 的数据库：
+
+### 2. 创建数据库 ugcData
+
+在 MySQL 控制台内，执行以下 SQL 命令：
+
+```sql
+CREATE DATABASE ugcData;
+```
+
+ 如果商品链接 (`product_url`) 或图片 URL (`image_url`) 可能非常长，`VARCHAR` 类型可能无法满足需求
+
+示例修改：
+
+```sql
+CREATE TABLE products (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(2048) NOT NULL COMMENT '商品标题',
+    price DECIMAL(10, 2) NOT NULL COMMENT '商品价格',
+    image_url TEXT DEFAULT NULL COMMENT '商品图片URL',
+    product_url TEXT NOT NULL COMMENT '商品链接',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+);
+```
+
+`````mysql
+CREATE TABLE `content_generation_requests` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `product_id` bigint NOT NULL COMMENT '关联的商品ID',
+  `style` varchar(100) NOT NULL COMMENT '文案风格',
+  `length` varchar(50) NOT NULL COMMENT '文案长度',
+  `language` varchar(50) NOT NULL COMMENT '文案语言',
+  `content` text COMMENT '生成的文案',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `content_generation_requests_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+`````
+
