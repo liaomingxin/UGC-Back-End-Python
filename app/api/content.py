@@ -140,17 +140,15 @@ async def generate_mimic_content(request: GenerateMimicRequest):
                 success=False,
                 code=400,
                 error="Template too short",
-                details="Template must be at least 10 characters"
             )
 
         logger.info("Generating mimic content")
         response = await ai_service.generate_mimic_content(request)
-        
         # 成功响应
         return ApiResponse(
             success=True,
             code=200,
-            data={"content": response}
+            data=dict(response)
         )
         
     except Exception as e:
@@ -159,7 +157,6 @@ async def generate_mimic_content(request: GenerateMimicRequest):
             success=False,
             code=500,
             error="Internal server error",
-            details=str(e) if str(e) != "success" else "Unknown error occurred"
         )
 
 @router.get("/health")

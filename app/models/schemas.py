@@ -97,27 +97,3 @@ class ApiResponse(BaseModel):
     data: Optional[dict] = None
     error: Optional[str] = None
     code: int = 200
-
-    @classmethod
-    def success(cls, data):
-        """
-        创建一个成功的API响应。
-        参数：
-            data: 响应的主要数据。
-        返回：
-            ApiResponse: 成功响应对象。
-        """
-        return cls(success=True, data=data)
-
-    @classmethod
-    def error(cls, code: int, message: str, details: str = None):
-        """
-        创建一个错误的API响应。
-        参数：
-            code (int): 错误状态码。
-            message (str): 错误信息。
-            details (str): 错误详情，可选。
-        返回：
-            ApiResponse: 错误响应对象。
-        """
-        return cls(success=False, code=code, error=message)
