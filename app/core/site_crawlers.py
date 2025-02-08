@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from app.utils.logger import setup_logger
 from app.models.schemas import ProductDTO
 import re
+import time
 
 # 初始化日志记录器
 logger = setup_logger()
@@ -75,17 +76,24 @@ class LazadaCrawler(BaseCrawler):
     def extract_title(self, driver):
         elements = driver.find_elements(By.CLASS_NAME, 'pdp-mod-product-badge-title')
         return elements[0].text if elements else ""
-        
+    
+    def scroll_to_bottom(self, driver):
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 等待新内容加载
+
     def extract_price(self, driver):
         div_element = driver.find_elements(By.CLASS_NAME, 'pdp-product-price')[0]
         span_element = div_element.find_elements(By.TAG_NAME, 'span')
+        # 滚动页面以加载更多内容
+        for _ in range(2):  # 根据需要调整滚动次数
+            self.scroll_to_bottom(driver)  # Use self to call the method
         return span_element[0].text if span_element else ""
         
     def extract_image(self, driver):
         elements = driver.find_elements(By.CLASS_NAME, 'pdp-mod-common-image')
         if elements:
             return elements[0].get_attribute('src')
-        return "" 
+        return ""
 
 class EbayCrawler(BaseCrawler):
     """eBay爬虫实现"""
