@@ -4,3 +4,9 @@ app/core/__pycache__/*
 
 app/__pycache__/main.cpython-312.pyc
 app/api/__pycache__/content.cpython-312.pyc
+app/utils/__pycache__/*
+app/config/__pycache__/*
+app/models/__pycache__/*
+app/repositories/__pycache__/*
+app/services/__pycache__/*
+app/utils/__pycache__/*

@@ -3,21 +3,21 @@ from typing import List, Optional
 
 class ProductDTO(BaseModel):
     """商品数据传输对象"""
-    title: str
-    price: str
+    title: Optional[str] = None
+    price: Optional[str] = None
     image_url: Optional[str] = None
     product_url: str
 
 class ProductRequest(BaseModel):
     """商品请求模型"""
-    productUrl: str
+    product_url: str
 
 class ProductResponse(BaseModel):
     """商品响应模型"""
     title: str
     price: str
-    imageUrl: Optional[str] = None
-    productUrl: str
+    image_url: Optional[str] = None
+    product_url: str
 
     @classmethod
     def from_dto(cls, dto: ProductDTO, product_url: str):
@@ -25,8 +25,8 @@ class ProductResponse(BaseModel):
         return cls(
             title=dto.title,
             price=dto.price,
-            imageUrl=dto.image_url,
-            productUrl=product_url
+            image_url=dto.image_url,
+            product_url=product_url
         )
 
 class ContentGenerationRequest(BaseModel):
@@ -97,27 +97,3 @@ class ApiResponse(BaseModel):
     data: Optional[dict] = None
     error: Optional[str] = None
     code: int = 200
-
-    @classmethod
-    def success(cls, data):
-        """
-        创建一个成功的API响应。
-        参数：
-            data: 响应的主要数据。
-        返回：
-            ApiResponse: 成功响应对象。
-        """
-        return cls(success=True, data=data)
-
-    @classmethod
-    def error(cls, code: int, message: str, details: str = None):
-        """
-        创建一个错误的API响应。
-        参数：
-            code (int): 错误状态码。
-            message (str): 错误信息。
-            details (str): 错误详情，可选。
-        返回：
-            ApiResponse: 错误响应对象。
-        """
-        return cls(success=False, code=code, error=message)

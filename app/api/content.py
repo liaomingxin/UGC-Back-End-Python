@@ -1,6 +1,10 @@
+import sys
+sys.path.append("..")  # 将上层目录添加到sys.path
+
 from fastapi import APIRouter, HTTPException, Depends, Request
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+import asyncio
 from app.models.schemas import (
     ProductDTO,
     ContentGenerationRequest,
@@ -11,11 +15,12 @@ from app.models.schemas import (
     ProductRequest,
     ProductResponse
 )
-from app.core.crawler import ProductCrawler
 from app.core.ai_service import AIService
 from app.utils.logger import setup_logger
 from app.core.database import get_db
 from app.repositories.product_repository import ProductRepository
+from app.core.crawler_factory import CrawlerFactory
+import time
 
 # 初始化日志记录器
 logger = setup_logger()
@@ -23,7 +28,6 @@ logger = setup_logger()
 router = APIRouter(prefix="/content")
 
 # 初始化服务实例
-crawler = ProductCrawler()
 ai_service = AIService()
 
 @router.post("/crawl", response_model=ProductResponse)
@@ -42,18 +46,30 @@ async def crawl_product(
         ProductResponse: 包含商品信息的响应对象。
     """
     try:
-        logger.info(f"Crawling product data from URL: {request.productUrl}")
-        product_dto = await crawler.crawl_product_data(request.productUrl)
-
-        # 保存到数据库
+        logger.info(f"Crawling product data from URL: {request.product_url}")
+        start_time = time.time()
+        
+        # 使用工厂获取对应的爬虫
+        crawler = CrawlerFactory.get_crawler(request.product_url)
+        product_dto = crawler.crawl(request.product_url)
+        logger.info(f"Crawled product data: {product_dto}")
+        
+        # 创建响应
+        response = ProductResponse.from_dto(product_dto, request.product_url)
+        end_time = time.time()
+        logger.info(f"------------Crawled product in {end_time - start_time} seconds------------ \n")
+        
+        # 在当前数据库会话中保存
         repo = ProductRepository(db)
-        await repo.create_product(product_dto)
-
-        response = ProductResponse.from_dto(product_dto, request.productUrl)
+        try:
+            await repo.create_product(product_dto)
+        except Exception as e:
+            logger.error(f"Error saving to database: {str(e)}")
+        
         return response
 
     except Exception as e:
-        logger.error(f"Error crawling product: {str(e)}")
+        logger.error(f"Error crawling product: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/generate", response_model=ContentGenerationResponse)
@@ -72,7 +88,12 @@ async def generate_content(
         ContentGenerationResponse: 包含生成的文案和产品信息。
     """
     try:
-        logger.info(f"Generating content for product: {request.product.title}")
+        # 记录请求参数
+        logger.info(f"Style: {request.style}")
+        logger.info(f"Length: {request.length}")
+        logger.info(f"Language: {request.language}")
+
+        # 生成内容
         content = await ai_service.generate_content(
             request.product,
             request.style,
@@ -80,59 +101,62 @@ async def generate_content(
             request.language
         )
 
-        # 保存商品和生成请求到数据库
+        # 保存到数据库
         repo = ProductRepository(db)
         product = await repo.create_product(request.product)
-        await repo.create_content_request(product.id, request.dict(), content)
+        
+        # 这里是问题所在
+        # request.dict() 返回字典，但后续代码还在尝试访问 .style 属性
+        content_request = await repo.create_content_request(product.id, request, content)
 
         return ContentGenerationResponse(
             content=content,
             product=request.product
         )
+
     except Exception as e:
         logger.error(f"Error generating content: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        return ApiResponse(
+            success=False,
+            code=500,
+            error=str(e)
+        )
 
 @router.post("/generate-mimic", response_model=ApiResponse)
-async def generate_mimic_content(
-    request: GenerateMimicRequest
-):
-    """
-    生成模仿文案。
-
-    参数：
-        request (GenerateMimicRequest): 包含模板和其他生成参数的信息。
-
-    返回：
-        ApiResponse: 包含成功或错误信息的响应。
-    """
+async def generate_mimic_content(request: GenerateMimicRequest):
     try:
-        # 输入验证
-        if not request.template or not request.template.strip():
-            logger.warning("Template validation failed: Empty template")
-            return ApiResponse.error(
+        # 验证模板
+        if not request.template:
+            logger.warning("Template validation failed: Template is empty")
+            return ApiResponse(
+                success=False,
                 code=400,
-                message="Invalid template",
-                details="Template cannot be empty"
+                error="Template is required"
             )
 
         if len(request.template) < 10:
             logger.warning("Template validation failed: Template too short")
-            return ApiResponse.error(
+            return ApiResponse(
+                success=False,
                 code=400,
-                message="Template too short",
-                details="Template must be at least 10 characters"
+                error="Template too short",
             )
 
         logger.info("Generating mimic content")
         response = await ai_service.generate_mimic_content(request)
-        return ApiResponse.success(data=response.dict())
+        # 成功响应
+        return ApiResponse(
+            success=True,
+            code=200,
+            data=dict(response)
+        )
+        
     except Exception as e:
-        logger.error(f"Error generating mimic content: {str(e)}")
-        return ApiResponse.error(
+        logger.error(f"Error generating mimic content: {str(e)}", exc_info=True)
+        return ApiResponse(
+            success=False,
             code=500,
-            message="Internal server error",
-            details=f"Error generating mimic content: {str(e)}"
+            error="Internal server error",
         )
 
 @router.get("/health")
@@ -144,3 +168,6 @@ async def health_check():
         dict: 服务状态。
     """
     return {"status": "healthy"}
+
+logger.info(f"ApiResponse class: {ApiResponse}")
+logger.info(f"ApiResponse methods: {dir(ApiResponse)}")
