@@ -26,7 +26,10 @@ dependencies = [
     "aiomysql>=0.2.0",
     "pymysql>=1.1.0",
     "greenlet>=2.0.0",
-    "cssselect>=1.2.0"
+    "cssselect>=1.2.0",
+    "requests=2.32.3",
+    "bs4=0.0.2",
+    "lxml=5.3.0"
 ]
 
 [project.optional-dependencies]
