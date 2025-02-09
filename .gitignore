@@ -10,3 +10,11 @@ app/models/__pycache__/*
 app/repositories/__pycache__/*
 app/services/__pycache__/*
 app/utils/__pycache__/*
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/.gitignore
+/.idea/encodings.xml
+/.idea/git_toolbox_blame.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/UGC-Back-End-Python.iml
+/.idea/vcs.xml
