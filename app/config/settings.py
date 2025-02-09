@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     API_PREFIX: str = "/api"  # API 路由前缀
 
     # OpenAI Configuration
-    OPENAI_API_KEY: str = "sk-kh5dDiP76fy07AOKAfF9KSjR0Lpb5OdThhs29PWpOxLb2rIq"  # OpenAI API 密钥
+    OPENAI_API_KEY: str = "sk-fTAZptqJKegyFAFmUVe62znUPxoq5YhsxXU8OdEFQ84yV3FW"  # OpenAI API 密钥
     OPENAI_BASE_URL: str = "https://api.gpts.vin"  # OpenAI API 基础 URL
 
     # Selenium Configuration 这里使用绝对路径了，最好改成相对路径
