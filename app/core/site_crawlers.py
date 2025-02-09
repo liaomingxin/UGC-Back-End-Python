@@ -74,8 +74,13 @@ class LazadaCrawler(BaseCrawler):
     """Lazada爬虫"""
     
     def extract_title(self, driver):
+        # 滚动页面以加载更多内容
+        for _ in range(2):  # 根据需要调整滚动次数
+            self.scroll_to_bottom(driver)  # Use self to call the method
         elements = driver.find_elements(By.CLASS_NAME, 'pdp-mod-product-badge-title')
-        return elements[0].text if elements else ""
+        if elements:
+            title = elements[0].text
+            print(title)
     
     def scroll_to_bottom(self, driver):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -84,10 +89,10 @@ class LazadaCrawler(BaseCrawler):
     def extract_price(self, driver):
         div_element = driver.find_elements(By.CLASS_NAME, 'pdp-product-price')[0]
         span_element = div_element.find_elements(By.TAG_NAME, 'span')
-        # 滚动页面以加载更多内容
-        for _ in range(2):  # 根据需要调整滚动次数
-            self.scroll_to_bottom(driver)  # Use self to call the method
-        return span_element[0].text if span_element else ""
+        if span_element:
+            price = span_element[0].text
+            print(price)
+
         
     def extract_image(self, driver):
         elements = driver.find_elements(By.CLASS_NAME, 'pdp-mod-common-image')
